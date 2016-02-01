@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		<!-- 
+		基本的单表查询 不含有映射关联查询
+		
+		 -->
+		
+		<!-- 命名空间只要唯一即可 -->
+<mapper namespace="com.test.userMapper">
+		<!-- 
+			语句书写有一点 ，十分要注意：
+				1.当数据库字段与实体类字段不一致时，查询语句需要使用别名，要不查询结果会返回null
+					因为在实体类中找不到对应属性，生成不了对象
+				2.还一种解决方式 配置一个resultMap 元素,然后在resultMap下指定resultMap的id即可
+		
+		 -->
+		 <!-- 当数据库与实体类属性不一致时需要的结果映射配置 -->
+	<resultMap type="_user" id="userResultMap">
+		<id property="userId" column="user_id"/>
+		<result property="userName" column="user_name"/>
+	</resultMap>	
+	 
+	 <!-- 查询 -->
+<!-- 	<select id="findSingle" resultType="_user" parameterType="Integer"> -->
+	<select id="findSingle" resultMap="userResultMap" parameterType="Integer">
+	<!-- 注意语句使用的是数据库里的语句 -->
+<!-- 		select user_id as userId, user_name userName from t_user where user_id = #{userId} -->
+			select * from t_user where user_id = #{userId}
+	</select>
+	
+	<!-- 插入  可以自定义参数映射集合 -->
+	<parameterMap type="java.util.Map" id="userParameterMap">
+		<parameter property="user_Name"/>
+	</parameterMap>
+<!-- 	<insert id="insertOne" parameterMap="userParameterMap"> -->
+	<insert id="insertOne" parameterType="_user">
+	<!-- There is no getter for property named 'user_Name' in 'class com.test.User'
+		注意#{}参数的书写 一定要对应于实体类的字段 否则报错
+	 -->
+		insert into t_user(user_id,user_name) values(hibernate_sequence.nextval,#{user_Name})
+	</insert>
+	
+	<!-- 更新 -->
+	<update id="updateOne" parameterType="_user">
+		update t_user set user_name = #{userName} where user_id = #{userId}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="deleteOne" parameterType="Integer">
+		delete from t_user where user_id = #{userId}
+	</delete>
+</mapper>
